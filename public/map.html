@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+          integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+          crossorigin=""/>
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+            integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+            crossorigin=""></script>
+    <style>
+        #map {
+            height: 300px;
+            width: 500px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Where is the International Space Station?</h1>
+    <a href="/logs">list all</a> | <a href="/index.html">submit</a> | <a href="/map.html">map</a>
+    <h3 id="lat">lat: null</h3>
+    <h3 id="lon">lon: null</h3>
+    <div id="map"></div>
+
+
+    <script>
+        //Making a map and tiles
+        const api_url = "https://api.wheretheiss.at/v1/satellites/25544";
+        const mapbox_token = 'pk.eyJ1IjoiYW1yYW50IiwiYSI6ImNrMTZlc3lheTExdmQzb3RnYmZkOHd2dHQifQ.R_9_N2SBhgtZEKXaIN2vKg';
+        const mapbox_url = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
+        const maxbox_attribution = {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 18,
+            id: 'mapbox.streets',
+            accessToken: mapbox_token
+        };
+        const map = L.map('map').setView([0, 0], 5);
+        const marker = L.marker([0,0]).addTo(map);
+        L.tileLayer(mapbox_url, maxbox_attribution).addTo(map);
+
+        setInterval(plot,1000);
+
+      async function  getData() {
+          const response = await fetch(api_url);
+          const json = await response.json();
+          const lat = json.latitude;
+          const lon = json.longitude;
+          return [lat, lon];
+      }
+      async function plot() {
+          let [lat, lon] = await getData();
+          let latElement = document.getElementById('lat');
+          let lonElement = document.getElementById('lon');
+          latElement.innerText = "lat: " + lat;
+          lonElement.innerText = "lon: " + lon;
+            map.setView([lat,lon]);
+            // L.marker([lat,lon]).addTo(map);
+            marker.setLatLng([lat,lon]);
+      }
+    </script>
+
+</body>
+</html>

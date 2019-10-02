@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>plotNasaTemperatureData</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
+</head>
+<body>
+
+<canvas id="chart" width="800" height="400"></canvas>
+
+<script>
+
+    plotChart();
+
+    async function fetchData() {
+        let xs = [];
+        let ys = [];
+        const response = await fetch('ZonAnn.Ts+dSST.csv');
+        const data = await response.text();
+        const rows = data.trim().split('\n').slice(1);
+        rows.forEach((elt) => {
+            const row = elt.split(',');
+            xs.push(row[0]);
+            ys.push(parseFloat(row[1]) + 14);
+        })
+        return [xs,ys];
+    }
+    async function plotChart() {
+        const [xs,ys] = await fetchData();
+        const ctx = document.getElementById('chart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                xAxisID: "year",
+                yAxisID: "temperature",
+                labels: xs,
+                datasets: [{
+                    borderColor: 'rgba(0,0,255.1)',
+                    backgroundColor: 'rgba(0,0,255,0.2)',
+                    fill: true, label: 'temps', data: ys
+                }]
+            }
+        });
+    }
+
+</script>
+
+</body>
+</html>
